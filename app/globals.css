@@ -1,26 +1,46 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #ffffff; /* Warna latar belakang terang */
+  --foreground: #171717; /* Warna teks gelap */
 }
 
+/*
+ * Aturan @theme ini tidak standar CSS dan menyebabkan error.
+ * Bagian ini dihapus/dikomentari. Variabel CSS yang dibutuhkan
+ * sudah didefinisikan di :root atau diimpor dari font Next.js.
+ */
+/*
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
+*/
 
+/*
+ * Bagian ini dikomentari untuk mematikan mode gelap otomatis.
+ * Jika Anda ingin mengaktifkannya kembali, hapus komentar pada blok di bawah ini.
+ */
+/*
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
 }
+*/
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Kustomisasi Grid untuk 14 kolom */
+@layer utilities {
+  .grid-cols-14 {
+    grid-template-columns: repeat(14, minmax(0, 1fr));
+  }
 }

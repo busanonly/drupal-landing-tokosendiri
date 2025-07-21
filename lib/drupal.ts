@@ -2,52 +2,53 @@
 
 import { DrupalClient } from "next-drupal"
 
-// Memeriksa apakah variabel lingkungan DRUPAL_BASE_URL sudah diatur.
-// Jika tidak, akan muncul error untuk memberitahu pengguna.
-if (!process.env.DRUPAL_BASE_URL) {
-  throw new Error("DRUPAL_BASE_URL environment variable is not set.")
-}
+// Menggunakan NEXT_PUBLIC_DRUPAL_BASE_URL untuk inisialisasi DrupalClient
+// karena Client Components juga akan mengimpor file ini.
+const DRUPAL_BASE_URL_FOR_CLIENT = process.env.NEXT_PUBLIC_DRUPAL_BASE_URL;
 
-// Tambahan validasi untuk kredensial API
-if (!process.env.DRUPAL_API_USERNAME) {
-  throw new Error("DRUPAL_API_USERNAME environment variable is not set.")
+// Kredensial API (hanya untuk sisi server)
+const DRUPAL_API_USERNAME = process.env.DRUPAL_API_USERNAME;
+const DRUPAL_API_PASSWORD = process.env.DRUPAL_API_PASSWORD;
+
+// --- VALIDASI TAMBAHAN UNTUK DRUPAL_BASE_URL ---
+if (!DRUPAL_BASE_URL_FOR_CLIENT) {
+  throw new Error("NEXT_PUBLIC_DRUPAL_BASE_URL environment variable is not set.");
 }
-if (!process.env.DRUPAL_API_PASSWORD) {
-  throw new Error("DRUPAL_API_PASSWORD environment variable is not set.")
-}
+// --- AKHIR VALIDASI ---
 
 // Membuat instance baru dari DrupalClient.
 // Klien ini akan digunakan untuk berinteraksi dengan Drupal API Anda.
 export const drupal = new DrupalClient(
-  process.env.DRUPAL_BASE_URL, // URL dasar dari situs Drupal Anda.
+  DRUPAL_BASE_URL_FOR_CLIENT, // Gunakan URL yang tersedia di klien
   {
-    // Opsi untuk permintaan fetch.
-    // Menambahkan tipe eksplisit untuk 'url' dan 'options' untuk mengatasi error TypeScript (ts7006).
+    // Opsi fetcher kustom.
     fetcher: (url: string, options?: RequestInit) => {
-      // Selalu tambahkan header otentikasi ke setiap permintaan.
-      const headers = new Headers(options?.headers)
-      headers.append(
-        "Authorization",
-        "Basic " +
-          Buffer.from(
-            `${process.env.DRUPAL_API_USERNAME}:${process.env.DRUPAL_API_PASSWORD}`
-          ).toString("base64")
-      )
+      const headers = new Headers(options?.headers);
 
-      // Melakukan permintaan fetch dengan header yang sudah ditambahkan.
+      // Hanya tambahkan header otentikasi jika kita berada di lingkungan server
+      // (yaitu, jika kredensial API tersedia).
+      // next-drupal secara otomatis menangani permintaan dari Client Components
+      // yang diarahkan ke API Route di Next.js yang kemudian memanggil Drupal.
+      if (typeof window === 'undefined' && DRUPAL_API_USERNAME && DRUPAL_API_PASSWORD) {
+        headers.append(
+          "Authorization",
+          "Basic " +
+            Buffer.from(
+              `${DRUPAL_API_USERNAME}:${DRUPAL_API_PASSWORD}`
+            ).toString("base64")
+        );
+      }
+
       return fetch(url, {
         ...options,
         headers,
-      })
+      });
     },
-    // Mengaktifkan mode debug untuk menampilkan informasi tambahan saat development.
-    // Sebaiknya diatur ke `false` di lingkungan produksi.
     debug: process.env.NODE_ENV === "development",
   }
-)
+);
 
 // Mengekspor URL publik untuk penggunaan di sisi klien (misalnya untuk gambar)
-// Asumsikan ini masih diperlukan berdasarkan konteks sebelumnya.
 export const NEXT_PUBLIC_DRUPAL_BASE_URL = process.env.NEXT_PUBLIC_DRUPAL_BASE_URL;
 
 // Tambahan validasi untuk NEXT_PUBLIC_DRUPAL_BASE_URL jika Anda ingin ketat
