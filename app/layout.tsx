@@ -30,11 +30,12 @@ export default async function RootLayout({
     // Memanggil helper untuk mengambil data Link menu
     const linkNodes = await getLinks();
     if (linkNodes.length > 0 && linkNodes[0].field_link) {
-      mainMenuLinksData = linkNodes[0].field_link;
+      // Menggunakan type assertion untuk memastikan tipe yang benar
+      mainMenuLinksData = linkNodes[0].field_link; // Tidak perlu 'as any' jika LinkNode sudah benar
     } else {
       console.warn("Tidak ada data link menu yang ditemukan dari Drupal.");
     }
-  } catch (err: any) {
+  } catch (err: unknown) { // <-- PERUBAHAN DI SINI: Menggunakan 'unknown'
     console.error("Gagal mengambil data link navigasi di layout:", err);
     // Anda mungkin ingin menangani error ini lebih baik di produksi,
     // misalnya dengan menampilkan menu fallback atau pesan error di UI.

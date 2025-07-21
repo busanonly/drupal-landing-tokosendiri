@@ -22,62 +22,62 @@ export default async function Home() {
       heroSectionData = heroSections[0];
     } else {
       error = "Tidak ada Hero Section yang ditemukan dari Drupal.";
+      console.warn("DEBUG: Tidak ada Hero Section yang ditemukan.");
     }
-
-    // Hapus logika pengambilan data Link menu dari sini
-    // const linkNodes = await getLinks();
-    // if (linkNodes.length > 0 && linkNodes[0].field_link) {
-    //   mainMenuLinksData = linkNodes[0].field_link;
-    // } else {
-    //   console.warn("Tidak ada data link menu yang ditemukan dari Drupal.");
-    // }
 
     // Memanggil helper untuk mengambil data Stack Cards (logo teknologi)
     const stackNodes = await getStackCards();
     if (stackNodes.length > 0 && stackNodes[0].field_teknologi_stack) {
       stackLogosData = stackNodes[0].field_teknologi_stack;
     } else {
-      console.warn("Tidak ada data stack teknologi yang ditemukan dari Drupal (Node ID 4).");
+      console.warn("DEBUG: Tidak ada data stack teknologi yang ditemukan dari Drupal (Node ID 4).");
     }
 
-  } catch (err: any) {
-    console.error("Gagal mengambil data:", err);
+  } catch (err: unknown) { // Menggunakan 'unknown' untuk error handling yang lebih baik
+    console.error("DEBUG: Gagal mengambil data di Home component:", err);
     error = "Gagal mengambil data dari Drupal. Pastikan Drupal berjalan dan CORS dikonfigurasi dengan benar.";
-    if (err.response?.status === 401) {
+    // Melakukan type assertion yang aman untuk mengakses properti error
+    if (typeof err === 'object' && err !== null && 'response' in err && (err as any).response?.status === 401) {
       error += " (Autentikasi gagal. Pastikan DRUPAL_API_USERNAME dan DRUPAL_API_PASSWORD benar)";
     }
   }
 
+  // --- DEBUGGING LOGS (HAPUS SETELAH SELESAI) ---
+  console.log("DEBUG: Final heroSectionData di Home:", heroSectionData ? "Ada" : "Tidak Ada");
+  console.log("DEBUG: Final stackLogosData di Home:", stackLogosData ? "Ada" : "Tidak Ada");
+  console.log("DEBUG: Error status di Home:", error);
+  // --- AKHIR DEBUGGING LOGS ---
+
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Hapus komponen Header dari sini. Ini menyebabkan duplikasi. */}
-      {/* <Header mainMenuLinks={mainMenuLinksData} /> */}
-
-      <main className="flex-grow">
-        <div className="container mx-auto p-4">
-          {/* Menampilkan pesan error jika ada */}
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-              <strong className="font-bold">Error!</strong>
-              <span className="block sm:inline"> {error}</span>
-            </div>
-          )}
-
-          {/* Menampilkan komponen HeroSection jika data tersedia */}
-          {heroSectionData ? (
-            <HeroSection heroSection={heroSectionData} />
-          ) : (
-            !error && <p>Memuat Hero Section...</p>
-          )}
-
-          {/* Menampilkan komponen StackCard persis di bawah HeroSection */}
-          {stackLogosData && <StackCard stackLogos={stackLogosData} />}
-
-          {/* Anda bisa menambahkan bagian lain dari halaman di sini nanti */}
-          {/* <h2 className="text-2xl font-bold mt-10 text-center">Selamat Datang!</h2>
-          <p className="text-center text-gray-700 mt-2">Ini adalah landing page Anda yang terhubung dengan Drupal.</p> */}
+    // min-h-screen flex flex-col sudah di layout.tsx, jadi tidak perlu di sini
+    // Cukup div container untuk konten halaman
+    <div className="container mx-auto p-4"> 
+      {/* Menampilkan pesan error jika ada */}
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+          <strong className="font-bold">Error!</strong>
+          <span className="block sm:inline"> {error}</span>
         </div>
-      </main>
+      )}
+
+      {/* Menampilkan komponen HeroSection jika data tersedia */}
+      {heroSectionData ? (
+        <HeroSection heroSection={heroSectionData} />
+      ) : (
+        // Menampilkan pesan jika tidak ada data dan tidak ada error spesifik
+        !error && <p className="text-center text-gray-600">Memuat Hero Section...</p>
+      )}
+
+      {/* Menampilkan komponen StackCard persis di bawah HeroSection */}
+      {stackLogosData ? (
+        <StackCard stackLogos={stackLogosData} />
+      ) : (
+        !error && <p className="text-center text-gray-600 mt-8">Memuat Teknologi Stack...</p>
+      )}
+
+      {/* Anda bisa menambahkan bagian lain dari halaman di sini nanti */}
+      {/* <h2 className="text-2xl font-bold mt-10 text-center">Selamat Datang!</h2>
+      <p className="text-center text-gray-700 mt-2">Ini adalah landing page Anda yang terhubung dengan Drupal.</p> */}
     </div>
   );
 }
