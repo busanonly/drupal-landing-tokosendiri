@@ -33,11 +33,11 @@ export default async function Home() {
       console.warn("DEBUG: Tidak ada data stack teknologi yang ditemukan dari Drupal (Node ID 4).");
     }
 
-  } catch (err: unknown) { // Menggunakan 'unknown' untuk error handling yang lebih baik
+  } catch (err: unknown) { // <-- PERUBAHAN DI SINI: Menggunakan 'unknown' untuk error handling yang lebih baik
     console.error("DEBUG: Gagal mengambil data di Home component:", err);
     error = "Gagal mengambil data dari Drupal. Pastikan Drupal berjalan dan CORS dikonfigurasi dengan benar.";
     // Melakukan type assertion yang aman untuk mengakses properti error
-    if (typeof err === 'object' && err !== null && 'response' in err && (err as any).response?.status === 401) {
+    if (typeof err === 'object' && err !== null && 'response' in err && (err as any).response?.status === 401) { // <-- PERUBAHAN DI SINI
       error += " (Autentikasi gagal. Pastikan DRUPAL_API_USERNAME dan DRUPAL_API_PASSWORD benar)";
     }
   }
