@@ -19,7 +19,7 @@ export default async function Home() {
     // Memanggil helper untuk mengambil data Hero Section
     const heroSections = await getHeroSections();
     if (heroSections.length > 0) {
-      heroSectionData = heroSections[0];
+      heroSectionData = heroSections[0]; 
     } else {
       error = "Tidak ada Hero Section yang ditemukan dari Drupal.";
       console.warn("DEBUG: Tidak ada Hero Section yang ditemukan.");
@@ -33,11 +33,12 @@ export default async function Home() {
       console.warn("DEBUG: Tidak ada data stack teknologi yang ditemukan dari Drupal (Node ID 4).");
     }
 
-  } catch (err: unknown) { // <-- PERUBAHAN DI SINI: Menggunakan 'unknown' untuk error handling yang lebih baik
+  } catch (err: unknown) { // Menggunakan 'unknown' untuk error handling yang lebih baik
     console.error("DEBUG: Gagal mengambil data di Home component:", err);
     error = "Gagal mengambil data dari Drupal. Pastikan Drupal berjalan dan CORS dikonfigurasi dengan benar.";
     // Melakukan type assertion yang aman untuk mengakses properti error
-    if (typeof err === 'object' && err !== null && 'response' in err && (err as any).response?.status === 401) { // <-- PERUBAHAN DI SINI
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Ini adalah type assertion yang diperlukan untuk mengakses properti 'response' dari error yang tidak diketahui tipenya.
+    if (typeof err === 'object' && err !== null && 'response' in err && (err as any).response?.status === 401) { 
       error += " (Autentikasi gagal. Pastikan DRUPAL_API_USERNAME dan DRUPAL_API_PASSWORD benar)";
     }
   }
