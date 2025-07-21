@@ -11,6 +11,12 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+  // Menambahkan konfigurasi untuk menonaktifkan aturan no-explicit-any
+  {
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off", // Menonaktifkan aturan no-explicit-any
+    },
+  },
 ];
 
 export default eslintConfig;
